@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdio.h>
 
 #include "chip-8.h"
 
@@ -22,20 +23,33 @@ const char CHIP_8_FONT[] =
 	0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 
-void init_chip_8(struct chip_8 *state, char program[], uint16_t program_size)
+void init_chip_8(struct chip_8 *state, char file_name[])
 {
-	// Init memory
+	/// Init memory
 	memset(state->memory, 0, 0xFF);
 	memcpy(&state->memory[CHIP_8_FONT_ADDRESS], CHIP_8_FONT, sizeof CHIP_8_FONT); // Load font
-	memcpy(&state->memory[CHIP_8_PROGRAM_ADDRESS], program, program_size); // Load program
 
-	// Init display
+	/// Read file
+	FILE *file = fopen(file_name, "rb");
+
+	// Get file size
+	fseek(file,0,SEEK_END);
+	off_t size = ftell(file);
+	fseek(file,0,SEEK_SET);
+
+	// Read file
+	fread(&state->memory[CHIP_8_PROGRAM_ADDRESS], 1, size, file);
+
+	//close the file because we like being nice and tidy
+	fclose(file);
+
+	/// Init display
 	clear_screen(state->display);
 
-	// Init stack
+	/// Init stack
 	init_stack(state->stack);
 
-	// Init registers
+	/// Init registers
 	memset(state->registers, 0, 0xF);
 	state->program_counter = CHIP_8_PROGRAM_ADDRESS;
 	state->index = 0;

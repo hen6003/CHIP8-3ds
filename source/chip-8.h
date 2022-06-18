@@ -20,5 +20,5 @@ struct chip_8
 
 extern const char CHIP_8_FONT[];
 
-void init_chip_8(struct chip_8 *state, char program[], uint16_t program_size);
+void init_chip_8(struct chip_8 *state, char file_name[]);
 void clear_screen(bool display[64][32]);
