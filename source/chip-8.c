@@ -50,7 +50,7 @@ void init_chip_8(struct chip_8 *state, char file_name[])
 	init_stack(state->stack);
 
 	/// Init registers
-	memset(state->registers, 0, 0xF);
+	memset(state->registers, 0, 0x10);
 	state->program_counter = CHIP_8_PROGRAM_ADDRESS;
 	state->index = 0;
 	state->delay_timer = 0;

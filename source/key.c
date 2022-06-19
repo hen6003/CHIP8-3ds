@@ -7,17 +7,17 @@ bool is_pressed(char key)
 	switch (key)
 	{
 	case 0x1:
-		return keys_down & KEY_LEFT;
+		return !(keys_down & KEY_L) && keys_down & KEY_LEFT;
 	case 0x2:
-		return keys_down & KEY_UP;
+		return !(keys_down & KEY_L) && keys_down & KEY_UP;
 	case 0x3:
-		return keys_down & KEY_RIGHT;
+		return !(keys_down & KEY_L) && keys_down & KEY_RIGHT;
 	case 0x4:
-		return keys_down & KEY_Y;
+		return !(keys_down & KEY_L) && keys_down & KEY_Y;
 	case 0x5:
-		return keys_down & KEY_X;
+		return !(keys_down & KEY_L) && keys_down & KEY_X;
 	case 0x6:
-		return keys_down & KEY_A;
+		return !(keys_down & KEY_L) && keys_down & KEY_A;
 	case 0x7:
 		return keys_down & KEY_L && keys_down & KEY_LEFT;
 	case 0x8:
@@ -31,9 +31,9 @@ bool is_pressed(char key)
 	case 0xB:
 		return keys_down & KEY_L && keys_down & KEY_A;
 	case 0xC:
-		return keys_down & KEY_DOWN;
+		return !(keys_down & KEY_L) && keys_down & KEY_DOWN;
 	case 0xD:
-		return keys_down & KEY_B;
+		return !(keys_down & KEY_L) && keys_down & KEY_B;
 	case 0xE:
 		return keys_down & KEY_L && keys_down & KEY_DOWN;
 	case 0xF:

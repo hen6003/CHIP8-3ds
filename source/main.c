@@ -105,6 +105,7 @@ void tick(struct chip_8 *state, bool *redraw)
 		printf("SNE r[%#x]=%x, r[%#x]=%x", X, state->registers[X], Y, state->registers[Y]);
 		break;
 	case 8:
+		bool set_vf = false;
 		switch (N)
 		{
 		case 0:
@@ -124,27 +125,27 @@ void tick(struct chip_8 *state, bool *redraw)
 			printf("XOR r[%#x], r[%#x]", X, Y);
 			break;
 		case 4:
-			state->registers[0xF] = ((uint16_t) state->registers[X] + (uint16_t) state->registers[Y]) > UINT8_MAX;
+			set_vf = ((uint16_t) state->registers[X] + (uint16_t) state->registers[Y]) > UINT8_MAX;
 			state->registers[X] += state->registers[Y];
 			printf("ADD r[%#x], r[%#x]", X, Y);
 			break;
 		case 5:
-			state->registers[0xF] = state->registers[X] > state->registers[Y];
+			set_vf = state->registers[X] >= state->registers[Y];
 			state->registers[X] -= state->registers[Y];
 			printf("SUB r[%#x], r[%#x]", X, Y);
 			break;
 		case 6:
-			state->registers[0xF] = state->registers[X] & 1;
+			set_vf = state->registers[X] & 1;
 			state->registers[X] >>= 1;
 			printf("SHR r[%#x]", X);
 			break;
 		case 7:
-			state->registers[0xF] = state->registers[Y] > state->registers[X];
-			state->registers[Y] -= state->registers[X];
+			set_vf = state->registers[Y] >= state->registers[X];
+			state->registers[X] = state->registers[Y] - state->registers[X];
 			printf("SUB r[%#x], r[%#x]", Y, X);
 			break;
 		case 0xE:
-			state->registers[0xF] = state->registers[X] & 0x80;
+			set_vf = state->registers[X] & 0x80;
 			state->registers[X] <<= 1;
 			printf("SHL r[%#x]", X);
 			break;
@@ -152,6 +153,7 @@ void tick(struct chip_8 *state, bool *redraw)
 			printf("Unknown opcode");
 			break;
 		}
+		state->registers[0xF] = set_vf;
 		break;
 	case 0xA: // Set index
 		state->index = NNN;
@@ -230,7 +232,7 @@ void tick(struct chip_8 *state, bool *redraw)
 			break;
 		case 0x0A: // Get key
 			char key = get_pressed();
-			if (key != -1)
+			if (key != 255)
 				state->registers[X] = key;
 			else
 				state->program_counter -= 2;
@@ -239,7 +241,7 @@ void tick(struct chip_8 *state, bool *redraw)
 		case 0x29: // Font
 			char character = state->registers[X] & 0xF;
 
-			state->index = CHIP_8_FONT_ADDRESS + character;
+			state->index = CHIP_8_FONT_ADDRESS + character * 5;
 			break;
 		case 0x33:
 			char number = state->registers[X];
@@ -364,7 +366,6 @@ int main(int argc, char **argv)
 	int hovered_file = 0;
 
 	struct chip_8 state;
-	//init_chip_8(&state, PROGRAM, sizeof PROGRAM);
 
 	struct file_entry *list = file_list();
 	int list_size = 0;
@@ -417,10 +418,12 @@ int main(int argc, char **argv)
 		{
 			if (redraw)
 			{
-				printf("\e[1;1H");
+				printf("\e[1;1HRom select:\n");
 					
 				for (int i = 0; i < list_size; i++)
 				{
+					printf(" ");
+
 					if (i == hovered_file)
 						printf("\e[44m");
 
