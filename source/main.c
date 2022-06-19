@@ -128,32 +128,36 @@ void tick(struct chip_8 *state, bool *redraw)
 			set_vf = ((uint16_t) state->registers[X] + (uint16_t) state->registers[Y]) > UINT8_MAX;
 			state->registers[X] += state->registers[Y];
 			printf("ADD r[%#x], r[%#x]", X, Y);
+			state->registers[0xF] = set_vf;
 			break;
 		case 5:
 			set_vf = state->registers[X] >= state->registers[Y];
 			state->registers[X] -= state->registers[Y];
 			printf("SUB r[%#x], r[%#x]", X, Y);
+			state->registers[0xF] = set_vf;
 			break;
 		case 6:
 			set_vf = state->registers[X] & 1;
 			state->registers[X] >>= 1;
 			printf("SHR r[%#x]", X);
+			state->registers[0xF] = set_vf;
 			break;
 		case 7:
 			set_vf = state->registers[Y] >= state->registers[X];
 			state->registers[X] = state->registers[Y] - state->registers[X];
 			printf("SUB r[%#x], r[%#x]", Y, X);
+			state->registers[0xF] = set_vf;
 			break;
 		case 0xE:
 			set_vf = state->registers[X] & 0x80;
 			state->registers[X] <<= 1;
+			state->registers[0xF] = set_vf;
 			printf("SHL r[%#x]", X);
 			break;
 		default:
 			printf("Unknown opcode");
 			break;
 		}
-		state->registers[0xF] = set_vf;
 		break;
 	case 0xA: // Set index
 		state->index = NNN;
